@@ -1,7 +1,6 @@
 package lastfm
 
 import (
-	// "fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"

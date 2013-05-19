@@ -2,7 +2,6 @@ package lastfm
 
 import (
 	"encoding/xml"
-	// "fmt"
 	"strconv"
 )
 
