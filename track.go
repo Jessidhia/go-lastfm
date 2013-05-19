@@ -24,6 +24,7 @@ type TrackInfo struct {
 	UserPlaycount int  `xml:"userplaycount"`
 	UserLoved     bool `xml:"userloved"`
 
+	// For internal use
 	RawDuration string `xml:"duration"`
 }
 
@@ -38,6 +39,16 @@ func (info *TrackInfo) unmarshalHelper() (err error) {
 	return
 }
 
+// Gets information for a Track. The user argument can either be empty ("") or specify a last.fm username, in which
+// case .UserPlaycount and .UserLoved will be valid in the returned struct. The autocorrect parameter controls whether
+// last.fm's autocorrection algorithms should be run on the artist or track names.
+//
+// The Track struct must specify either the MBID or both Artist.Name and Name.
+// Example literals that can be given as the first argument:
+//   lastfm.Track{MBID: "mbid"}
+//   lastfm.Track{Artist: lastfm.Artist{Name: "Artist"}, Name: "Track"}
+//
+// See http://www.last.fm/api/show/track.getInfo.
 func (lfm LastFM) GetTrackInfo(track Track, user string, autocorrect bool) (info *TrackInfo, err error) {
 	query := map[string]string{}
 	if autocorrect {

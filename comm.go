@@ -22,11 +22,14 @@ type mockServer interface {
 	doQuery(params map[string]string) ([]byte, error)
 }
 
+// Struct used to access the API servers.
 type LastFM struct {
 	apiKey string
 	mock   mockServer
 }
 
+// Create a new LastFM struct.
+// The apiKey parameter must be an API key registered with Last.fm.
 func New(apiKey string) LastFM {
 	return LastFM{apiKey: apiKey}
 }
@@ -51,6 +54,7 @@ func (lfm LastFM) doQuery(method string, params map[string]string) (data []byte,
 	return
 }
 
+// Used to unwrap XML from inside the <lfm> parent
 type lfmStatus struct {
 	Status       string       `xml:"status,attr"`
 	RecentTracks RecentTracks `xml:"recenttracks"`

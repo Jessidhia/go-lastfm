@@ -1,26 +1,28 @@
-// TODO: Document ALL THE THINGS
 package lastfm
 
 import (
 	"time"
 )
 
+// Some structs need extra processing after XML unmarshalling.
 type unmarshalHelper interface {
 	unmarshalHelper() error
 }
 
 type Artist struct {
 	Name      string `xml:"name"`
-	PlayCount int    `xml:"playcount"`
+	PlayCount int    `xml:"playcount"` // Currently is always 0, except when part of the result of GetUserTopArtists.
 	MBID      string `xml:"mbid"`
 	URL       string `xml:"url"`
 }
 
+// Less detailed struct returned in GetRecentTracks.
 type Album struct {
 	Name string `xml:",chardata"`
 	MBID string `xml:"mbid,attr"`
 }
 
+// More detailed struct returned in GetTrackInfo.
 type AlbumInfo struct {
 	TrackNo int    `xml:"position,attr"`
 	Name    string `xml:"title"`

@@ -14,6 +14,15 @@ type TopTags struct {
 	Tags   []Tag  `xml:"tag"`
 }
 
+// Gets the top tags for a Track. The second argument tells last.fm whether
+// it is to apply autocorrections to the name/artist.
+//
+// The Track struct must specify either the MBID or both Artist.Name and Name.
+// Example literals that can be given as the first argument:
+//   lastfm.Track{MBID: "mbid"}
+//   lastfm.Track{Artist: lastfm.Artist{Name: "Artist"}, Name: "Track"}
+//
+// See http://www.last.fm/api/show/track.getTopTags.
 func (lfm LastFM) GetTrackTopTags(track Track, autocorrect bool) (toptags *TopTags, err error) {
 	query := map[string]string{}
 	if autocorrect {
@@ -43,6 +52,15 @@ func (lfm LastFM) GetTrackTopTags(track Track, autocorrect bool) (toptags *TopTa
 	return
 }
 
+// Gets the top tags for an Artist. The second argument tells last.fm whether
+// it is to apply autocorrections to the artist name.
+//
+// The Artist struct must specify either the MBID or the Name.
+// Example literals that can be given as the first argument:
+//   lastfm.Artist{MBID: "mbid"}
+//   lastfm.Artist{Name: "Artist"}
+//
+// See http://www.last.fm/api/show/artist.getTopTags.
 func (lfm LastFM) GetArtistTopTags(artist Artist, autocorrect bool) (toptags *TopTags, err error) {
 	query := map[string]string{}
 	if autocorrect {
