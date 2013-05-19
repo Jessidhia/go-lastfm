@@ -24,17 +24,17 @@ type mockServer interface {
 }
 
 type LastFM struct {
-	ApiKey string
+	apiKey string
 	mock   mockServer
 }
 
 func New(apiKey string) LastFM {
-	return LastFM{ApiKey: apiKey}
+	return LastFM{apiKey: apiKey}
 }
 
 func (lfm LastFM) doQuery(method string, params map[string]string) (data []byte, err error) {
 	queryParams := make(map[string]string, len(params)+2)
-	queryParams["api_key"] = lfm.ApiKey
+	queryParams["api_key"] = lfm.apiKey
 	queryParams["method"] = method
 	for key, value := range params {
 		queryParams[key] = value
