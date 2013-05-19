@@ -49,7 +49,7 @@ func (lfm LastFM) GetRecentTracks(user string, count int) (tracks *RecentTracks,
 }
 
 type Tasteometer struct {
-	User    []string `xml:"input>user>name"`
+	Users   []string `xml:"input>user>name"`
 	Score   float32  `xml:"result>score"`
 	Artists []string `xml:"result>artists>artist>name"`
 }
