@@ -132,7 +132,7 @@ const (
 
 var periodStringMap = map[Period]string{
 	Overall:     "overall",
-	OneWeek:     "1week",
+	OneWeek:     "7day",
 	OneMonth:    "1month",
 	ThreeMonths: "3month",
 	SixMonths:   "6month",
