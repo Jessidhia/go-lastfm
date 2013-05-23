@@ -3,6 +3,7 @@ package lastfm
 import (
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
@@ -13,7 +14,7 @@ const (
 func buildQueryURL(query map[string]string) string {
 	parts := make([]string, 0, len(query))
 	for key, value := range query {
-		parts = append(parts, strings.Join([]string{key, strings.Replace(value, " ", "+", -1)}, "="))
+		parts = append(parts, strings.Join([]string{url.QueryEscape(key), url.QueryEscape(value)}, "="))
 	}
 	return apiBaseURL + strings.Join(parts, "&")
 }
