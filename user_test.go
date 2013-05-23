@@ -14,7 +14,7 @@ func TestGetRecentTracks(T *testing.T) {
 
 	if Expect(T, "error", nil, err) {
 		Expect(T, "scrobble count", 39679, tracks.Total)
-		Expect(T, "now playing track", tracks.Tracks[0], *tracks.NowPlaying)
+		Expect(T, "now playing track", &tracks.Tracks[0], tracks.NowPlaying)
 		Expect(T, "first track's loved status to be", true, tracks.Tracks[0].Loved)
 	}
 }
