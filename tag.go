@@ -47,6 +47,10 @@ func (lfm LastFM) GetTrackTopTags(track Track, autocorrect bool) (toptags *TopTa
 	if err != nil {
 		return
 	}
+	if status.Error.Code != 0 {
+		err = &status.Error
+		return
+	}
 
 	toptags = &status.TopTags
 	return
@@ -82,6 +86,10 @@ func (lfm LastFM) GetArtistTopTags(artist Artist, autocorrect bool) (toptags *To
 	status := lfmStatus{}
 	err = xml.Unmarshal(bytes, &status)
 	if err != nil {
+		return
+	}
+	if status.Error.Code != 0 {
+		err = &status.Error
 		return
 	}
 

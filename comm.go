@@ -63,6 +63,7 @@ type lfmStatus struct {
 	TopTags      TopTags      `xml:"toptags"`
 	Neighbours   []Neighbour  `xml:"neighbours>user"`
 	TopArtists   TopArtists   `xml:"topartists"`
+	Error        LastFMError  `xml:"error"`
 }
 
 type lfmDate struct {

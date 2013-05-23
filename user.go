@@ -47,6 +47,10 @@ func (lfm LastFM) GetRecentTracks(user string, count int) (tracks *RecentTracks,
 	if err != nil {
 		return
 	}
+	if status.Error.Code != 0 {
+		err = &status.Error
+		return
+	}
 
 	tracks = &status.RecentTracks
 	err = tracks.unmarshalHelper()
@@ -76,6 +80,10 @@ func (lfm LastFM) CompareTaste(user1 string, user2 string) (taste *Tasteometer, 
 	if err != nil {
 		return
 	}
+	if status.Error.Code != 0 {
+		err = &status.Error
+		return
+	}
 
 	taste = &status.Tasteometer
 	return
@@ -100,6 +108,10 @@ func (lfm LastFM) GetUserNeighbours(user string, limit int) (neighbours []Neighb
 	status := lfmStatus{}
 	err = xml.Unmarshal(bytes, &status)
 	if err != nil {
+		return
+	}
+	if status.Error.Code != 0 {
+		err = &status.Error
 		return
 	}
 
@@ -166,6 +178,10 @@ func (lfm LastFM) GetUserTopArtists(user string, period Period, limit int) (top 
 	status := lfmStatus{}
 	err = xml.Unmarshal(bytes, &status)
 	if err != nil {
+		return
+	}
+	if status.Error.Code != 0 {
+		err = &status.Error
 		return
 	}
 

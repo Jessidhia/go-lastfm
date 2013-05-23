@@ -77,6 +77,10 @@ func (lfm LastFM) GetTrackInfo(track Track, user string, autocorrect bool) (info
 	if err != nil {
 		return
 	}
+	if status.Error.Code != 0 {
+		err = &status.Error
+		return
+	}
 
 	info = &status.TrackInfo
 	err = info.unmarshalHelper()

@@ -1,12 +1,23 @@
 package lastfm
 
 import (
+	"strings"
 	"time"
 )
 
 // Some structs need extra processing after XML unmarshalling.
 type unmarshalHelper interface {
 	unmarshalHelper() error
+}
+
+type LastFMError struct {
+	error
+	Code    int    `xml:"code,attr"`
+	Message string `xml:",chardata"`
+}
+
+func (e *LastFMError) Error() string {
+	return strings.Trim(e.Message, "\n ")
 }
 
 type Artist struct {
