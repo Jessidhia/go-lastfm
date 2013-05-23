@@ -38,12 +38,14 @@ func (lfm LastFM) GetTrackTopTags(track Track, autocorrect bool) (toptags *TopTa
 		query["track"] = track.Name
 	}
 
-	bytes, err := lfm.doQuery("track.getTopTags", query)
+	body, err := lfm.doQuery("track.getTopTags", query)
 	if err != nil {
 		return
 	}
+	defer body.Close()
+
 	status := lfmStatus{}
-	err = xml.Unmarshal(bytes, &status)
+	err = xml.NewDecoder(body).Decode(&status)
 	if err != nil {
 		return
 	}
@@ -79,12 +81,14 @@ func (lfm LastFM) GetArtistTopTags(artist Artist, autocorrect bool) (toptags *To
 		query["artist"] = artist.Name
 	}
 
-	bytes, err := lfm.doQuery("artist.getTopTags", query)
+	body, err := lfm.doQuery("artist.getTopTags", query)
 	if err != nil {
 		return
 	}
+	defer body.Close()
+
 	status := lfmStatus{}
-	err = xml.Unmarshal(bytes, &status)
+	err = xml.NewDecoder(body).Decode(&status)
 	if err != nil {
 		return
 	}

@@ -31,19 +31,17 @@ func (tracks *RecentTracks) unmarshalHelper() (err error) {
 //
 // See http://www.last.fm/api/show/user.getRecentTracks.
 func (lfm LastFM) GetRecentTracks(user string, count int) (tracks *RecentTracks, err error) {
-	bytes, err := lfm.doQuery("user.getRecentTracks", map[string]string{
+	body, err := lfm.doQuery("user.getRecentTracks", map[string]string{
 		"user":     user,
 		"extended": "1",
 		"limit":    strconv.Itoa(count)})
 	if err != nil {
 		return
 	}
-	// Sadly, this errors out because <recenttracks> isn't the toplevel element:
-	// tracks = &RecentTracks{}
-	// err = xml.Unmarshal(bytes, tracks)
-	// Using `xml:"recenttracks>track"` works for .Tracks, but not for .User or .Total
+	defer body.Close()
+
 	status := lfmStatus{}
-	err = xml.Unmarshal(bytes, &status)
+	err = xml.NewDecoder(body).Decode(&status)
 	if err != nil {
 		return
 	}
@@ -67,7 +65,7 @@ type Tasteometer struct {
 //
 // See http://www.last.fm/api/show/tasteometer.compare.
 func (lfm LastFM) CompareTaste(user1 string, user2 string) (taste *Tasteometer, err error) {
-	bytes, err := lfm.doQuery("tasteometer.compare", map[string]string{
+	body, err := lfm.doQuery("tasteometer.compare", map[string]string{
 		"type1":  "user",
 		"type2":  "user",
 		"value1": user1,
@@ -75,8 +73,10 @@ func (lfm LastFM) CompareTaste(user1 string, user2 string) (taste *Tasteometer, 
 	if err != nil {
 		return
 	}
+	defer body.Close()
+
 	status := lfmStatus{}
-	err = xml.Unmarshal(bytes, &status)
+	err = xml.NewDecoder(body).Decode(&status)
 	if err != nil {
 		return
 	}
@@ -99,14 +99,16 @@ type Neighbour struct {
 //
 // See http://www.last.fm/api/show/user.getNeighbours
 func (lfm LastFM) GetUserNeighbours(user string, limit int) (neighbours []Neighbour, err error) {
-	bytes, err := lfm.doQuery("user.getNeighbours", map[string]string{
+	body, err := lfm.doQuery("user.getNeighbours", map[string]string{
 		"user":  user,
 		"limit": strconv.Itoa(limit)})
 	if err != nil {
 		return
 	}
+	defer body.Close()
+
 	status := lfmStatus{}
-	err = xml.Unmarshal(bytes, &status)
+	err = xml.NewDecoder(body).Decode(&status)
 	if err != nil {
 		return
 	}
@@ -167,16 +169,17 @@ func (top *TopArtists) unmarshalHelper() (err error) {
 //
 // See http://www.last.fm/api/show/user.getTopArtists.
 func (lfm LastFM) GetUserTopArtists(user string, period Period, limit int) (top *TopArtists, err error) {
-	bytes, err := lfm.doQuery("user.getTopArtists", map[string]string{
+	body, err := lfm.doQuery("user.getTopArtists", map[string]string{
 		"user":   user,
 		"period": periodStringMap[period],
 		"limit":  strconv.Itoa(limit)})
 	if err != nil {
 		return
 	}
+	defer body.Close()
 
 	status := lfmStatus{}
-	err = xml.Unmarshal(bytes, &status)
+	err = xml.NewDecoder(body).Decode(&status)
 	if err != nil {
 		return
 	}

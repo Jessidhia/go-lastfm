@@ -68,12 +68,14 @@ func (lfm LastFM) GetTrackInfo(track Track, user string, autocorrect bool) (info
 		query["track"] = track.Name
 	}
 
-	bytes, err := lfm.doQuery("track.getInfo", query)
+	body, err := lfm.doQuery("track.getInfo", query)
 	if err != nil {
 		return
 	}
+	defer body.Close()
+
 	status := lfmStatus{}
-	err = xml.Unmarshal(bytes, &status)
+	err = xml.NewDecoder(body).Decode(&status)
 	if err != nil {
 		return
 	}

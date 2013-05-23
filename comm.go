@@ -1,7 +1,7 @@
 package lastfm
 
 import (
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -19,6 +19,10 @@ func buildQueryURL(query map[string]string) string {
 	return apiBaseURL + strings.Join(parts, "&")
 }
 
+type getter interface {
+	Get(url string) (resp *http.Response, err error)
+}
+
 type mockServer interface {
 	doQuery(params map[string]string) ([]byte, error)
 }
@@ -26,33 +30,31 @@ type mockServer interface {
 // Struct used to access the API servers.
 type LastFM struct {
 	apiKey string
-	mock   mockServer
+	getter getter
 }
 
 // Create a new LastFM struct.
 // The apiKey parameter must be an API key registered with Last.fm.
 func New(apiKey string) LastFM {
-	return LastFM{apiKey: apiKey}
+	return LastFM{apiKey: apiKey, getter: http.DefaultClient}
 }
 
-func (lfm LastFM) doQuery(method string, params map[string]string) (data []byte, err error) {
+func (lfm LastFM) doQuery(method string, params map[string]string) (body io.ReadCloser, err error) {
 	queryParams := make(map[string]string, len(params)+2)
 	queryParams["api_key"] = lfm.apiKey
 	queryParams["method"] = method
 	for key, value := range params {
 		queryParams[key] = value
 	}
-	if lfm.mock != nil {
-		return lfm.mock.doQuery(queryParams)
-	}
 
-	resp, err := http.Get(buildQueryURL(queryParams))
+	resp, err := lfm.getter.Get(buildQueryURL(queryParams))
 	if err != nil {
+		if resp != nil && resp.Body != nil {
+			resp.Body.Close()
+		}
 		return
 	}
-	data, err = ioutil.ReadAll(resp.Body)
-	resp.Body.Close()
-	return
+	return resp.Body, err
 }
 
 // Used to unwrap XML from inside the <lfm> parent

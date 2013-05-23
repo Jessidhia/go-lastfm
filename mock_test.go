@@ -2,14 +2,31 @@ package lastfm
 
 import (
 	"fmt"
-	"io/ioutil"
+	"net/http"
+	"net/url"
 	"os"
 	"sort"
 	"strings"
 )
 
-type MockServer struct {
-	mockServer
+type MockLastFM struct{}
+
+func (_ *MockLastFM) Get(uri string) (resp *http.Response, err error) {
+	args := strings.Split(strings.Replace(uri, apiBaseURL, "", 1), "&")
+	query := make(map[string]string)
+	for _, arg := range args {
+		param := strings.Split(arg, "=")
+		k, _ := url.QueryUnescape(param[0])
+		query[k], _ = url.QueryUnescape(param[1])
+	}
+	fh, err := os.Open(buildMockFilename(query))
+
+	if err != nil && os.IsNotExist(err) {
+		fmt.Fprintln(os.Stderr, "Produce with: curl -o - '"+buildQueryURL(query)+"' > '"+buildMockFilename(query)+"'")
+		return
+	}
+	resp = &http.Response{Body: fh} // doQuery cares about the Body
+	return
 }
 
 func buildMockFilename(query map[string]string) string {
@@ -33,20 +50,7 @@ func buildMockFilename(query map[string]string) string {
 	return "fixtures/" + strings.Join(parts, ".")
 }
 
-func (_ *MockServer) doQuery(params map[string]string) (data []byte, err error) {
-	fh, err := os.Open(buildMockFilename(params))
-	if err != nil {
-		if os.IsNotExist(err) {
-			fmt.Fprintln(os.Stderr, "Produce with: curl -o - '"+buildQueryURL(params)+"' > '"+buildMockFilename(params)+"'")
-		}
-		return
-	}
-	data, err = ioutil.ReadAll(fh)
-	fh.Close()
-	return
-}
-
 func Mock(lfm LastFM) LastFM {
-	lfm.mock = &MockServer{}
+	lfm.getter = &MockLastFM{}
 	return lfm
 }
