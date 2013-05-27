@@ -4,19 +4,20 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 )
 
-const (
-	apiBaseURL = "http://ws.audioscrobbler.com/2.0/?"
+var (
+	apiBaseURL = url.URL{Scheme: "http", Host: "ws.audioscrobbler.com", Path: "/2.0/"}
 )
 
 func buildQueryURL(query map[string]string) string {
-	parts := make([]string, 0, len(query))
+	v := url.Values{}
 	for key, value := range query {
-		parts = append(parts, strings.Join([]string{url.QueryEscape(key), url.QueryEscape(value)}, "="))
+		v.Add(key, value)
 	}
-	return apiBaseURL + strings.Join(parts, "&")
+	u := apiBaseURL
+	u.RawQuery = v.Encode()
+	return u.String()
 }
 
 type getter interface {
