@@ -65,7 +65,7 @@ type lfmStatus struct {
 	Tasteometer  Tasteometer  `xml:"comparison"`
 	TrackInfo    TrackInfo    `xml:"track"`
 	TopTags      TopTags      `xml:"toptags"`
-	Neighbours   []Neighbour  `xml:"neighbours>user"`
+	Neighbours   Neighbours   `xml:"neighbours>user"`
 	TopArtists   TopArtists   `xml:"topartists"`
 	Error        LastFMError  `xml:"error"`
 }

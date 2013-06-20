@@ -93,12 +93,13 @@ type Neighbour struct {
 	Name  string  `xml:"name"`
 	Match float32 `xml:"match"`
 }
+type Neighbours []Neighbour
 
 // Gets a list of up to limit closest neighbours of a user. A neighbour is another user
 // that has high tasteometer comparison scores.
 //
 // See http://www.last.fm/api/show/user.getNeighbours
-func (lfm LastFM) GetUserNeighbours(user string, limit int) (neighbours []Neighbour, err error) {
+func (lfm LastFM) GetUserNeighbours(user string, limit int) (neighbours Neighbours, err error) {
 	body, err := lfm.doQuery("user.getNeighbours", map[string]string{
 		"user":  user,
 		"limit": strconv.Itoa(limit)})
