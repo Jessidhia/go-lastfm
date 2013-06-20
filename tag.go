@@ -23,7 +23,8 @@ type TopTags struct {
 //   lastfm.Track{Artist: lastfm.Artist{Name: "Artist"}, Name: "Track"}
 //
 // See http://www.last.fm/api/show/track.getTopTags.
-func (lfm LastFM) GetTrackTopTags(track Track, autocorrect bool) (toptags *TopTags, err error) {
+func (lfm *LastFM) GetTrackTopTags(track Track, autocorrect bool) (toptags *TopTags, err error) {
+	method := "track.getTopTags"
 	query := map[string]string{}
 	if autocorrect {
 		query["autocorrect"] = "1"
@@ -38,7 +39,18 @@ func (lfm LastFM) GetTrackTopTags(track Track, autocorrect bool) (toptags *TopTa
 		query["track"] = track.Name
 	}
 
-	body, err := lfm.doQuery("track.getTopTags", query)
+	if data, err := lfm.Cache.Get(method, query); data != nil {
+		switch v := data.(type) {
+		case TopTags:
+			return &v, err
+		case *TopTags:
+			return v, err
+		}
+	} else if err != nil {
+		return nil, err
+	}
+
+	body, hdr, err := lfm.doQuery(method, query)
 	if err != nil {
 		return
 	}
@@ -51,10 +63,12 @@ func (lfm LastFM) GetTrackTopTags(track Track, autocorrect bool) (toptags *TopTa
 	}
 	if status.Error.Code != 0 {
 		err = &status.Error
+		go lfm.Cache.Set(method, query, err, hdr)
 		return
 	}
 
 	toptags = &status.TopTags
+	go lfm.Cache.Set(method, query, toptags, hdr)
 	return
 }
 
@@ -67,7 +81,8 @@ func (lfm LastFM) GetTrackTopTags(track Track, autocorrect bool) (toptags *TopTa
 //   lastfm.Artist{Name: "Artist"}
 //
 // See http://www.last.fm/api/show/artist.getTopTags.
-func (lfm LastFM) GetArtistTopTags(artist Artist, autocorrect bool) (toptags *TopTags, err error) {
+func (lfm *LastFM) GetArtistTopTags(artist Artist, autocorrect bool) (toptags *TopTags, err error) {
+	method := "artist.getTopTags"
 	query := map[string]string{}
 	if autocorrect {
 		query["autocorrect"] = "1"
@@ -81,7 +96,18 @@ func (lfm LastFM) GetArtistTopTags(artist Artist, autocorrect bool) (toptags *To
 		query["artist"] = artist.Name
 	}
 
-	body, err := lfm.doQuery("artist.getTopTags", query)
+	if data, err := lfm.Cache.Get(method, query); data != nil {
+		switch v := data.(type) {
+		case TopTags:
+			return &v, err
+		case *TopTags:
+			return v, err
+		}
+	} else if err != nil {
+		return nil, err
+	}
+
+	body, hdr, err := lfm.doQuery(method, query)
 	if err != nil {
 		return
 	}
@@ -94,9 +120,11 @@ func (lfm LastFM) GetArtistTopTags(artist Artist, autocorrect bool) (toptags *To
 	}
 	if status.Error.Code != 0 {
 		err = &status.Error
+		go lfm.Cache.Set(method, query, err, hdr)
 		return
 	}
 
 	toptags = &status.TopTags
+	go lfm.Cache.Set(method, query, toptags, hdr)
 	return
 }

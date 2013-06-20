@@ -49,7 +49,8 @@ func (info *TrackInfo) unmarshalHelper() (err error) {
 //   lastfm.Track{Artist: lastfm.Artist{Name: "Artist"}, Name: "Track"}
 //
 // See http://www.last.fm/api/show/track.getInfo.
-func (lfm LastFM) GetTrackInfo(track Track, user string, autocorrect bool) (info *TrackInfo, err error) {
+func (lfm *LastFM) GetTrackInfo(track Track, user string, autocorrect bool) (info *TrackInfo, err error) {
+	method := "track.getInfo"
 	query := map[string]string{}
 	if autocorrect {
 		query["autocorrect"] = "1"
@@ -68,7 +69,18 @@ func (lfm LastFM) GetTrackInfo(track Track, user string, autocorrect bool) (info
 		query["track"] = track.Name
 	}
 
-	body, err := lfm.doQuery("track.getInfo", query)
+	if data, err := lfm.Cache.Get(method, query); data != nil {
+		switch v := data.(type) {
+		case TrackInfo:
+			return &v, err
+		case *TrackInfo:
+			return v, err
+		}
+	} else if err != nil {
+		return nil, err
+	}
+
+	body, hdr, err := lfm.doQuery(method, query)
 	if err != nil {
 		return
 	}
@@ -81,10 +93,14 @@ func (lfm LastFM) GetTrackInfo(track Track, user string, autocorrect bool) (info
 	}
 	if status.Error.Code != 0 {
 		err = &status.Error
+		go lfm.Cache.Set(method, query, err, hdr)
 		return
 	}
 
 	info = &status.TrackInfo
 	err = info.unmarshalHelper()
+	if err == nil {
+		go lfm.Cache.Set(method, query, info, hdr)
+	}
 	return
 }

@@ -32,6 +32,7 @@ type mockServer interface {
 type LastFM struct {
 	apiKey string
 	getter getter
+	Cache  Cache
 }
 
 // Create a new LastFM struct.
@@ -40,7 +41,7 @@ func New(apiKey string) LastFM {
 	return LastFM{apiKey: apiKey, getter: http.DefaultClient}
 }
 
-func (lfm LastFM) doQuery(method string, params map[string]string) (body io.ReadCloser, err error) {
+func (lfm *LastFM) doQuery(method string, params map[string]string) (body io.ReadCloser, hdr http.Header, err error) {
 	queryParams := make(map[string]string, len(params)+2)
 	queryParams["api_key"] = lfm.apiKey
 	queryParams["method"] = method
@@ -55,7 +56,7 @@ func (lfm LastFM) doQuery(method string, params map[string]string) (body io.Read
 		}
 		return
 	}
-	return resp.Body, err
+	return resp.Body, resp.Header, err
 }
 
 // Used to unwrap XML from inside the <lfm> parent
