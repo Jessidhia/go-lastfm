@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/pmylund/go-cache"
@@ -114,10 +115,16 @@ func (lfm *LastFM) SaveCache(w io.Writer) error {
 // starting any requests.
 func (lfm *LastFM) LoadCache(r io.Reader) error {
 	dec := gob.NewDecoder(r)
-	var items map[string]*cache.Item
+	var items map[string]cache.Item
 	if err := dec.Decode(&items); err != nil {
 		return err
 	}
-	lfm.Cache = cache.NewFrom(DefaultDuration, DefaultCleanupInterval, items)
+	lfm.Cache = struct {
+		*sync.RWMutex
+		*cache.Cache
+	}{
+		RWMutex: &sync.RWMutex{},
+		Cache:   cache.NewFrom(DefaultDuration, DefaultCleanupInterval, items),
+	}
 	return nil
 }

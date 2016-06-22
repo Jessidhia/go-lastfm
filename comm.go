@@ -4,6 +4,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"sync"
 
 	"github.com/pmylund/go-cache"
 )
@@ -34,7 +35,10 @@ type mockServer interface {
 type LastFM struct {
 	apiKey string
 	getter getter
-	Cache  *cache.Cache
+	Cache  struct {
+		*sync.RWMutex
+		*cache.Cache
+	}
 }
 
 // Create a new LastFM struct.
@@ -43,7 +47,13 @@ func New(apiKey string) LastFM {
 	return LastFM{
 		apiKey: apiKey,
 		getter: http.DefaultClient,
-		Cache:  cache.New(DefaultDuration, DefaultCleanupInterval),
+		Cache: struct {
+			*sync.RWMutex
+			*cache.Cache
+		}{
+			RWMutex: &sync.RWMutex{},
+			Cache:   cache.New(DefaultDuration, DefaultCleanupInterval),
+		},
 	}
 }
 
