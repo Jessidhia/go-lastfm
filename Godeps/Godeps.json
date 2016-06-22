@@ -1,10 +1,11 @@
 {
 	"ImportPath": "github.com/Kovensky/go-lastfm",
-	"GoVersion": "go1.4",
+	"GoVersion": "go1.6",
+	"GodepVersion": "v74",
 	"Deps": [
 		{
 			"ImportPath": "github.com/pmylund/go-cache",
-			"Rev": "03284ca422855c22f78fabc19050734205aeea58"
+			"Rev": "1881a9bccb818787f68c52bfba648c6cf34c34fa"
 		}
 	]
 }
